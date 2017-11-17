@@ -8,26 +8,22 @@ import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.support.annotation.Nullable;
-import android.widget.Toast;
 
 import java.util.Locale;
 
 public class NfcUtils {
 
-    public static final String MIME_TEXT_PLAIN = "text/plain";
+    private static final String MIME_TEXT_PLAIN = "text/plain";
 
     private NfcUtils() {}
 
-    public static boolean checkNfcAvailable(Context context) {
+    public static boolean checkNfcEnabled(Context context) {
         NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(context);
 
         if (nfcAdapter == null)
             return false;
 
-        if (!nfcAdapter.isEnabled())
-            return false;
-
-        return true;
+        return nfcAdapter.isEnabled();
     }
 
     public static void setupForegroundDispatch(final Activity activity) {
