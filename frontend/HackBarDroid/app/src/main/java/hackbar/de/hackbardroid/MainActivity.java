@@ -2,6 +2,7 @@ package hackbar.de.hackbardroid;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -9,17 +10,32 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import hackbar.de.hackbardroid.service.INerdBarService;
+import hackbar.de.hackbardroid.service.NerdBarService;
 import hackbar.de.hackbardroid.settings.UserSettings;
 import hackbar.de.hackbardroid.utils.NfcUtils;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    private INerdBarService nerdBarService;
 
+    private UserSettings userSettings;
+
+    private FloatingActionButton findGlassButton;
+    private FloatingActionButton newOrderButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        findGlassButton = (FloatingActionButton)findViewById(R.id.findGlassButton);
+        newOrderButton = (FloatingActionButton)findViewById(R.id.newOrderButton);
+
+        userSettings = new UserSettings(getApplicationContext());
 
         if (!NfcUtils.checkNfcEnabled(this)) {
             Toast.makeText(this, "This device doesn't support NFC.", Toast.LENGTH_LONG).show();
@@ -29,20 +45,53 @@ public class MainActivity extends AppCompatActivity {
         if (!checkLoggedIn())
             return;
 
+        updateViewState();
+
+        nerdBarService = NerdBarService.getInstance();
+
         handleIntent(getIntent());
     }
 
+    private void updateViewState() {
+        if (userSettings.getConnectedTagIdKey() != null) {
+            findGlassButton.setVisibility(View.VISIBLE);
+            newOrderButton.setVisibility(View.VISIBLE);
+        } else {
+            findGlassButton.setVisibility(View.GONE);
+            newOrderButton.setVisibility(View.GONE);
+        }
+    }
+
     private boolean checkLoggedIn() {
-        UserSettings userSettings = new UserSettings(getApplicationContext());
+
         if (userSettings.getUserId() == null) {
-            logout();
+            navigateToLogin();
             return false;
         }
         return true;
     }
 
     private void logout() {
-        Intent intent = new Intent(this, LoginActivity.class);
+        Call<Void> logoutCall = nerdBarService.logout(userSettings.getUserId());
+        logoutCall.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    userSettings.setConnectedTagIdKey(null);
+                    navigateToLogin();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Sorry, couldn't log you out!", Toast.LENGTH_SHORT)
+                    .show();
+            }
+        });
+    }
+
+    private void navigateToLogin() {
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
     }
 
@@ -66,10 +115,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleIntent(Intent intent) {
-        Long id = NfcUtils.getTagId(intent);
+        final String tagId = NfcUtils.getTagId(intent);
 
-        if (id != null) {
-            Toast.makeText(MainActivity.this, "ID: " + id, Toast.LENGTH_LONG).show();
+        if (tagId != null) {
+            Call<Void> logoutCall = nerdBarService.register(userSettings.getUserId(), tagId);
+            logoutCall.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(MainActivity.this, "Paired with: " + tagId, Toast.LENGTH_SHORT)
+                                .show();
+                        updateViewState();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Toast.makeText(MainActivity.this, "Sorry, couldn't pair!", Toast.LENGTH_SHORT)
+                            .show();
+                }
+            });
         }
     }
 
@@ -86,12 +151,8 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_logout:
                 logout();
                 return true;
-
             default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
