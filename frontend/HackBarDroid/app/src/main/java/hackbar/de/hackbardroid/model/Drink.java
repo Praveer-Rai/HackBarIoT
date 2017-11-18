@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName;
 
 public class Drink {
 
+    public static final String DRINK_KEY = "drink";
+
     @SerializedName("id")
     @Expose
     private long id;
@@ -21,11 +23,21 @@ public class Drink {
     @Expose
     private int maxTemp;
 
-    public Drink(long id, String drinkName, int minTemp, int maxTemp) {
+    @SerializedName("imageURL")
+    @Expose
+    private String imageURL;
+
+    @SerializedName("price")
+    @Expose
+    private String price;
+
+    public Drink(long id, String drinkName, int minTemp, int maxTemp, String imageURL, String price) {
         this.id = id;
         this.drinkName = drinkName;
         this.minTemp = minTemp;
         this.maxTemp = maxTemp;
+        this.imageURL = imageURL;
+        this.price = price;
     }
 
     @Override
@@ -63,5 +75,21 @@ public class Drink {
 
     public void setMaxTemp(int maxTemp) {
         this.maxTemp = maxTemp;
+    }
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+
+    public String getPrice() {
+        return price;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
     }
 }

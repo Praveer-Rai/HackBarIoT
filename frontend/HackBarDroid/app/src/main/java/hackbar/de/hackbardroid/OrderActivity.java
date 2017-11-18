@@ -7,9 +7,11 @@ import android.widget.ListView;
 
 import java.util.List;
 
+import hackbar.de.hackbardroid.adapters.DrinksAdapter;
 import hackbar.de.hackbardroid.model.Drink;
 import hackbar.de.hackbardroid.service.INerdBarService;
 import hackbar.de.hackbardroid.service.NerdBarService;
+import hackbar.de.hackbardroid.settings.UserSettings;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -17,6 +19,8 @@ import retrofit2.Response;
 public class OrderActivity extends AppCompatActivity {
 
     private INerdBarService service;
+
+    private UserSettings settings;
 
     private ListView drinksList;
 
@@ -27,6 +31,7 @@ public class OrderActivity extends AppCompatActivity {
 
         drinksList = (ListView)findViewById(R.id.drinksList);
 
+        settings = new UserSettings(getApplicationContext());
         service = NerdBarService.getInstance();
     }
 
@@ -35,12 +40,6 @@ public class OrderActivity extends AppCompatActivity {
         super.onResume();
 
         loadDrinks();
-    }
-
-    private void updateList(List<Drink> drinks) {
-        ArrayAdapter<Drink> drinksAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_list_item_1, drinks);
-        drinksList.setAdapter(drinksAdapter);
     }
 
     private void loadDrinks() {
@@ -59,5 +58,10 @@ public class OrderActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void updateList(List<Drink> drinks) {
+        DrinksAdapter adapter = new DrinksAdapter(this, drinks, settings.getUserId());
+        drinksList.setAdapter(adapter);
     }
 }

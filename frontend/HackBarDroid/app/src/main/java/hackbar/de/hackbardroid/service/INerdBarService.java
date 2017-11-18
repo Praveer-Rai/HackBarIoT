@@ -20,4 +20,8 @@ public interface INerdBarService {
     @POST("logout")
     @FormUrlEncoded
     Call<Void> logout(@Field("userId")  String userId);
+
+    @POST("orderDrink")
+    @FormUrlEncoded
+    Call<Void> orderDrink(@Field("userId") String userId, @Field("drinkName") String drinkName);
 }
