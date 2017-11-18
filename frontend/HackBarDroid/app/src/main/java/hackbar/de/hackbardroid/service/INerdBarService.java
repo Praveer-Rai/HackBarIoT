@@ -3,6 +3,7 @@ package hackbar.de.hackbardroid.service;
 import java.util.List;
 
 import hackbar.de.hackbardroid.model.Drink;
+import hackbar.de.hackbardroid.model.User;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -15,7 +16,7 @@ public interface INerdBarService {
 
     @POST("register")
     @FormUrlEncoded
-    Call<Void> register(@Field("userId") String userId, @Field("deviceId") String deviceId);
+    Call<User> register(@Field("userId") String userId, @Field("deviceId") String deviceId);
 
     @POST("logout")
     @FormUrlEncoded

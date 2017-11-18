@@ -2,6 +2,7 @@ package hackbar.de.hackbardroid;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import hackbar.de.hackbardroid.model.User;
 import hackbar.de.hackbardroid.service.INerdBarService;
 import hackbar.de.hackbardroid.service.NerdBarService;
 import hackbar.de.hackbardroid.settings.UserSettings;
@@ -31,6 +33,10 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewGroup layoutUnpaired;
     private ViewGroup layoutPaired;
+
+    private Handler handler;
+
+    private User currentUserData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +79,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void updateUserData(User user) {
+        currentUserData = user;
+    }
+
     private boolean checkLoggedIn() {
 
         if (userSettings.getUserId() == null) {
@@ -111,11 +121,21 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private final Runnable intervalRunner = new Runnable() {
+        @Override
+        public void run() {
+            // update user status here via REST call
+        }
+    };
+
     @Override
     protected void onResume() {
         super.onResume();
 
         NfcUtils.setupForegroundDispatch(this);
+
+        handler = new Handler();
+        handler.postDelayed(intervalRunner, 10000);
     }
 
     @Override
@@ -123,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
         NfcUtils.stopForegroundDispatch(this);
 
         super.onPause();
+
+        handler.removeCallbacks(intervalRunner);
     }
 
     @Override
@@ -136,18 +158,20 @@ public class MainActivity extends AppCompatActivity {
         if (tagId != null) {
             DeviceUtils.vibrate(this);
 
-            Call<Void> logoutCall = nerdBarService.register(userSettings.getUserId(), tagId);
-            logoutCall.enqueue(new Callback<Void>() {
+            Call<User> logoutCall = nerdBarService.register(userSettings.getUserId(), tagId);
+            logoutCall.enqueue(new Callback<User>() {
                 @Override
-                public void onResponse(Call<Void> call, Response<Void> response) {
+                public void onResponse(Call<User> call, Response<User> response) {
                     if (response.isSuccessful()) {
+                        User userData = response.body();
                         userSettings.setConnectedTagIdKey(tagId);
                         updateViewState();
+                        updateUserData(userData);
                     }
                 }
 
                 @Override
-                public void onFailure(Call<Void> call, Throwable t) {
+                public void onFailure(Call<User> call, Throwable t) {
                     Toast.makeText(MainActivity.this, "Sorry, couldn't pair!", Toast.LENGTH_SHORT)
                             .show();
                 }
