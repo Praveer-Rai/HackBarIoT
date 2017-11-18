@@ -9,6 +9,7 @@ import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 public interface INerdBarService {
     @GET("getDrinks")
@@ -22,7 +23,18 @@ public interface INerdBarService {
     @FormUrlEncoded
     Call<Void> logout(@Field("userId")  String userId);
 
+    @GET("getUser")
+    Call<User> getUser(@Query("userId") String userId);
+
     @POST("orderDrink")
     @FormUrlEncoded
     Call<Void> orderDrink(@Field("userId") String userId, @Field("drinkName") String drinkName);
+
+    @POST("findMyDrink")
+    @FormUrlEncoded
+    Call<User> findMyDrink(@Field("userId") String userId);
+
+    @POST("needAssistance")
+    @FormUrlEncoded
+    Call<User> needAssistance(@Field("userId") String userId);
 }

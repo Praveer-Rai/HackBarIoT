@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private FloatingActionButton findGlassButton;
     private FloatingActionButton newOrderButton;
+    private FloatingActionButton serviceButton;
 
     private ViewGroup layoutUnpaired;
     private ViewGroup layoutPaired;
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
         findGlassButton = (FloatingActionButton)findViewById(R.id.findGlassButton);
         newOrderButton = (FloatingActionButton)findViewById(R.id.newOrderButton);
+        serviceButton = (FloatingActionButton)findViewById(R.id.serviceButton);
         layoutUnpaired = (ViewGroup) findViewById(R.id.layoutUnpaired);
         layoutPaired = (ViewGroup) findViewById(R.id.layoutPaired);
 
@@ -81,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUserData(User user) {
         currentUserData = user;
+
+        findGlassButton.setAlpha(user.getFindMyDrink() ? 0.66f : 1.0f);
+        serviceButton.setAlpha(user.getNeedAssistance() ? 0.66f : 1.0f);
     }
 
     private boolean checkLoggedIn() {
@@ -124,7 +130,20 @@ public class MainActivity extends AppCompatActivity {
     private final Runnable intervalRunner = new Runnable() {
         @Override
         public void run() {
-            // update user status here via REST call
+            Call<User> findCall = nerdBarService.getUser(userSettings.getUserId());
+            findCall.enqueue(new Callback<User>() {
+                @Override
+                public void onResponse(Call<User> call, Response<User> response) {
+                    if (response.isSuccessful()) {
+                        updateUserData(response.body());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<User> call, Throwable t) {
+                    Log.d("", t.getMessage());
+                }
+            });
         }
     };
 
@@ -135,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         NfcUtils.setupForegroundDispatch(this);
 
         handler = new Handler();
-        handler.postDelayed(intervalRunner, 10000);
+        handler.postDelayed(intervalRunner, 5000);
     }
 
     @Override
@@ -198,11 +217,37 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void findGlassClicked(View view) {
+        Call<User> findCall = nerdBarService.findMyDrink(userSettings.getUserId());
+        findCall.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
+                    updateUserData(response.body());
+                }
+            }
 
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+
+            }
+        });
     }
 
     public void serviceClicked(View view) {
+        Call<User> findCall = nerdBarService.needAssistance(userSettings.getUserId());
+        findCall.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
+                    updateUserData(response.body());
+                }
+            }
 
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.d("", t.getMessage());
+            }
+        });
     }
 
     public void newOrderClicked(View view) {

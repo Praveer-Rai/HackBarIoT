@@ -9,7 +9,7 @@ public class Drink {
 
     @SerializedName("id")
     @Expose
-    private long id;
+    private Long id;
 
     @SerializedName("drinkName")
     @Expose
@@ -17,11 +17,11 @@ public class Drink {
 
     @SerializedName("minTemp")
     @Expose
-    private int minTemp;
+    private Integer minTemp;
 
     @SerializedName("maxTemp")
     @Expose
-    private int maxTemp;
+    private Integer maxTemp;
 
     @SerializedName("imageURL")
     @Expose
@@ -45,11 +45,15 @@ public class Drink {
         return drinkName;
     }
 
-    public long getId() {
+    public static String getDrinkKey() {
+        return DRINK_KEY;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -61,19 +65,19 @@ public class Drink {
         this.drinkName = drinkName;
     }
 
-    public int getMinTemp() {
+    public Integer getMinTemp() {
         return minTemp;
     }
 
-    public void setMinTemp(int minTemp) {
+    public void setMinTemp(Integer minTemp) {
         this.minTemp = minTemp;
     }
 
-    public int getMaxTemp() {
+    public Integer getMaxTemp() {
         return maxTemp;
     }
 
-    public void setMaxTemp(int maxTemp) {
+    public void setMaxTemp(Integer maxTemp) {
         this.maxTemp = maxTemp;
     }
 

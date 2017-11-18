@@ -7,7 +7,7 @@ public class User {
 
     @SerializedName("id")
     @Expose
-    private long id;
+    private Long id;
 
     @SerializedName("deviceId")
     @Expose
@@ -19,41 +19,49 @@ public class User {
 
     @SerializedName("maxTemp")
     @Expose
-    private int maxTemp;
+    private Integer maxTemp;
 
     @SerializedName("minTemp")
     @Expose
-    private int minTemp;
+    private Integer minTemp;
 
-    @SerializedName("currentTemp")
-    @Expose
-    private int currentTemp;
+//    @SerializedName("currentTemp")
+//    @Expose
+//    private Integer currentTemp;
 
-    @SerializedName("currentDrink")
-    @Expose
-    private int currentDrink;
+//    @SerializedName("currentDrink")
+//    @Expose
+//    private Integer currentDrink;
 
     @SerializedName("sipCount")
     @Expose
-    private int sipCount;
+    private Integer sipCount;
 
-    @SerializedName("drinkDuration")
+//    @SerializedName("drinkDuration")
+//    @Expose
+//    private Integer drinkDuration;
+//
+//    @SerializedName("drinkStart")
+//    @Expose
+//    //private String drinkStart;
+//
+//    @SerializedName("drinkEnd")
+//    @Expose
+//    private String drinkEnd;
+
+    @SerializedName("findMyDrink")
     @Expose
-    private int drinkDuration;
+    private Boolean findMyDrink;
 
-    @SerializedName("drinkStart")
+    @SerializedName("needAssistance")
     @Expose
-    private int drinkStart;
+    private Boolean needAssistance;
 
-    @SerializedName("drinkEnd")
-    @Expose
-    private int drinkEnd;
-
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -73,67 +81,43 @@ public class User {
         this.userId = userId;
     }
 
-    public int getMaxTemp() {
+    public Integer getMaxTemp() {
         return maxTemp;
     }
 
-    public void setMaxTemp(int maxTemp) {
+    public void setMaxTemp(Integer maxTemp) {
         this.maxTemp = maxTemp;
     }
 
-    public int getMinTemp() {
+    public Integer getMinTemp() {
         return minTemp;
     }
 
-    public void setMinTemp(int minTemp) {
+    public void setMinTemp(Integer minTemp) {
         this.minTemp = minTemp;
     }
 
-    public int getCurrentTemp() {
-        return currentTemp;
-    }
-
-    public void setCurrentTemp(int currentTemp) {
-        this.currentTemp = currentTemp;
-    }
-
-    public int getCurrentDrink() {
-        return currentDrink;
-    }
-
-    public void setCurrentDrink(int currentDrink) {
-        this.currentDrink = currentDrink;
-    }
-
-    public int getSipCount() {
+    public Integer getSipCount() {
         return sipCount;
     }
 
-    public void setSipCount(int sipCount) {
+    public void setSipCount(Integer sipCount) {
         this.sipCount = sipCount;
     }
 
-    public int getDrinkDuration() {
-        return drinkDuration;
+    public Boolean getFindMyDrink() {
+        return findMyDrink;
     }
 
-    public void setDrinkDuration(int drinkDuration) {
-        this.drinkDuration = drinkDuration;
+    public void setFindMyDrink(Boolean findMyDrink) {
+        this.findMyDrink = findMyDrink;
     }
 
-    public int getDrinkStart() {
-        return drinkStart;
+    public Boolean getNeedAssistance() {
+        return needAssistance;
     }
 
-    public void setDrinkStart(int drinkStart) {
-        this.drinkStart = drinkStart;
-    }
-
-    public int getDrinkEnd() {
-        return drinkEnd;
-    }
-
-    public void setDrinkEnd(int drinkEnd) {
-        this.drinkEnd = drinkEnd;
+    public void setNeedAssistance(Boolean needAssistance) {
+        this.needAssistance = needAssistance;
     }
 }
