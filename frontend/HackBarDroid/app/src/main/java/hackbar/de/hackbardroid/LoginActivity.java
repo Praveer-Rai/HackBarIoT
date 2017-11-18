@@ -60,6 +60,7 @@ public class LoginActivity extends Activity {
 
         // when we arrive here, delete the user (from prev login)
         userSettings.setUserId(null);
+        userSettings.setConnectedTagIdKey(null);
     }
 
     @Override

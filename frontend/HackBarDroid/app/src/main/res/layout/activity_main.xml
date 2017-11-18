@@ -6,6 +6,41 @@
     android:layout_height="match_parent"
     tools:context="hackbar.de.hackbardroid.MainActivity">
 
+    <LinearLayout
+        android:id="@+id/layoutUnpaired"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/pairImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/pair_black"
+            android:layout_gravity="center_horizontal"
+            android:alpha="0.5"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:text="@string/pairInfo"
+            android:layout_margin="16dp" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/layoutPaired"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+    </RelativeLayout>
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/newOrderButton"
         android:layout_width="wrap_content"

@@ -3,4 +3,8 @@
     <string name="userName">What\'s your name?</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
+
+    <string name="pairInfo">Tap the glass with your phone\nto get more options…</string>
+
+    <string name="order_title">Order a drink</string>
 </resources>

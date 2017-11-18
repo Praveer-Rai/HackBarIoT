@@ -1,13 +1,17 @@
 package hackbar.de.hackbardroid.service;
 
+import java.util.List;
+
+import hackbar.de.hackbardroid.model.Drink;
 import retrofit2.Call;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 
 public interface INerdBarService {
-    //@GET("users/{user}/repos")
-    //Call<List<String>> listRepos(@Path("user") String user);
+    @GET("getDrinks")
+    Call<List<Drink>> getDrinks();
 
     @POST("register")
     @FormUrlEncoded

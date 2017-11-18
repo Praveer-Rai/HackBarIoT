@@ -8,11 +8,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import hackbar.de.hackbardroid.service.INerdBarService;
 import hackbar.de.hackbardroid.service.NerdBarService;
 import hackbar.de.hackbardroid.settings.UserSettings;
+import hackbar.de.hackbardroid.utils.DeviceUtils;
 import hackbar.de.hackbardroid.utils.NfcUtils;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -27,6 +29,9 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton findGlassButton;
     private FloatingActionButton newOrderButton;
 
+    private ViewGroup layoutUnpaired;
+    private ViewGroup layoutPaired;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
 
         findGlassButton = (FloatingActionButton)findViewById(R.id.findGlassButton);
         newOrderButton = (FloatingActionButton)findViewById(R.id.newOrderButton);
+        layoutUnpaired = (ViewGroup) findViewById(R.id.layoutUnpaired);
+        layoutPaired = (ViewGroup) findViewById(R.id.layoutPaired);
 
         userSettings = new UserSettings(getApplicationContext());
 
@@ -56,9 +63,13 @@ public class MainActivity extends AppCompatActivity {
         if (userSettings.getConnectedTagIdKey() != null) {
             findGlassButton.setVisibility(View.VISIBLE);
             newOrderButton.setVisibility(View.VISIBLE);
+            layoutUnpaired.setVisibility(View.GONE);
+            layoutPaired.setVisibility(View.VISIBLE);
         } else {
             findGlassButton.setVisibility(View.GONE);
             newOrderButton.setVisibility(View.GONE);
+            layoutUnpaired.setVisibility(View.VISIBLE);
+            layoutPaired.setVisibility(View.GONE);
         }
     }
 
@@ -72,12 +83,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logout() {
-        Call<Void> logoutCall = nerdBarService.logout(userSettings.getUserId());
+        String userId = userSettings.getUserId();
+        Call<Void> logoutCall = nerdBarService.logout(userId);
         logoutCall.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    userSettings.setConnectedTagIdKey(null);
                     navigateToLogin();
                 }
             }
@@ -91,7 +102,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void navigateToLogin() {
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+    }
+
+    private void navigateToOrders() {
+        Intent intent = new Intent(this, OrderActivity.class);
         startActivity(intent);
     }
 
@@ -118,13 +134,14 @@ public class MainActivity extends AppCompatActivity {
         final String tagId = NfcUtils.getTagId(intent);
 
         if (tagId != null) {
+            DeviceUtils.vibrate(this);
+
             Call<Void> logoutCall = nerdBarService.register(userSettings.getUserId(), tagId);
             logoutCall.enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
                     if (response.isSuccessful()) {
-                        Toast.makeText(MainActivity.this, "Paired with: " + tagId, Toast.LENGTH_SHORT)
-                                .show();
+                        userSettings.setConnectedTagIdKey(tagId);
                         updateViewState();
                     }
                 }
@@ -165,6 +182,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void newOrderClicked(View view) {
-
+        navigateToOrders();
     }
 }
