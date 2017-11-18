@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HackBar</string>
+    <string name="app_name">Nerd Bar</string>
     <string name="userName">What\'s your name?</string>
     <string name="login">Login</string>
     <string name="logout">Logout</string>
