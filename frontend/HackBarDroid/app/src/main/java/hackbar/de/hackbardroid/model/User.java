@@ -25,9 +25,9 @@ public class User {
     @Expose
     private Integer minTemp;
 
-//    @SerializedName("currentTemp")
-//    @Expose
-//    private Integer currentTemp;
+    @SerializedName("currentTemp")
+    @Expose
+    private Integer currentTemp;
 
     @SerializedName("currentDrink")
     @Expose
@@ -83,6 +83,14 @@ public class User {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public Integer getCurrentTemp() {
+        return currentTemp;
+    }
+
+    public void setCurrentTemp(Integer currentTemp) {
+        this.currentTemp = currentTemp;
     }
 
     public Integer getMaxTemp() {

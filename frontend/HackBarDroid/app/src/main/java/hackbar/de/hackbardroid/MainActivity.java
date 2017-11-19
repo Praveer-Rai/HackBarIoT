@@ -40,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView userHintText;
     private TextView numberOfSips;
     private TextView numberOfDrinks;
+    private TextView drinkTempLabel;
+    private TextView drinkTemp;
 
     private ViewGroup layoutUnpaired;
     private ViewGroup layoutPaired;
@@ -62,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
         userHintText = (TextView) findViewById(R.id.userHintText);
         numberOfDrinks = (TextView) findViewById(R.id.numberOfDrinks);
         numberOfSips = (TextView) findViewById(R.id.numberOfSips);
+        drinkTempLabel = (TextView) findViewById(R.id.drinkTempLabel);
+        drinkTemp = (TextView) findViewById(R.id.drinkTemp);
 
         nerdBarService = NerdBarService.getInstance();
         userSettings = new UserSettings(getApplicationContext());
@@ -102,10 +106,12 @@ public class MainActivity extends AppCompatActivity {
 
         findGlassButton.setAlpha(user.getFindMyDrink() ? 0.66f : 1.0f);
         serviceButton.setAlpha(user.getNeedAssistance() ? 0.66f : 1.0f);
+        serviceButton.setEnabled(!user.getNeedAssistance());
 
         updateSalutationText(user);
         updateUserHintText(user);
         updateCounters(user);
+        updateDrinkTemp(user);
     }
 
     private void updateSalutationText(User user) {
@@ -139,6 +145,19 @@ public class MainActivity extends AppCompatActivity {
     private void updateCounters(User user) {
         numberOfSips.setText(user.getSipCount().toString());
         numberOfDrinks.setText(user.getDrinkCount().toString());
+    }
+
+    private void updateDrinkTemp(User user) {
+        String drink = user.getCurrentDrink();
+        Integer temp = user.getCurrentTemp();
+        if (drink != null && temp != null) {
+            drinkTemp.setText(temp + " °C");
+            drinkTemp.setVisibility(View.VISIBLE);
+            drinkTempLabel.setVisibility(View.VISIBLE);
+        } else {
+            drinkTemp.setVisibility(View.GONE);
+            drinkTempLabel.setVisibility(View.GONE);
+        }
     }
 
     private boolean checkLoggedIn() {

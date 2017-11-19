@@ -13,6 +13,7 @@
 
     <string name="reset_sip_counter">Reset sip counter</string>
 
+    <string name="drink_temp">Your drink\'s temperature:</string>
     <string name="number_of_sips">Number of sips:</string>
     <string name="number_of_drinks">Number of drinks:</string>
 </resources>
