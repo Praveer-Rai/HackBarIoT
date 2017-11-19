@@ -1,6 +1,7 @@
 package hackbar.de.hackbardroid;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -150,10 +151,19 @@ public class MainActivity extends AppCompatActivity {
         Integer temp = user.getCurrentTemp();
         if (drink != null && temp != null) {
             drinkTemp.setText(temp + " °C");
+
+            if (temp < user.getMinTemp() || temp > user.getMaxTemp())
+                drinkTemp.setTextColor(Color.RED);
+            else if (temp == user.getMinTemp().intValue() || temp == user.getMaxTemp().intValue())
+                drinkTemp.setTextColor(Color.YELLOW);
+            else
+                drinkTemp.setTextColor(Color.WHITE);
+
             drinkTemp.setVisibility(View.VISIBLE);
             drinkTempLabel.setVisibility(View.VISIBLE);
         } else {
             drinkTemp.setVisibility(View.GONE);
+            drinkTemp.setTextColor(Color.WHITE);
             drinkTempLabel.setVisibility(View.GONE);
         }
     }
