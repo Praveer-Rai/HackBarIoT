@@ -59,18 +59,18 @@ public class NfcUtils {
         adapter.disableForegroundDispatch(activity);
     }
 
-    private static Long parseTag(Tag tag) {
+    private static String parseTag(Tag tag) {
         byte[] idData = tag.getId();
 
         StringBuilder sb = new StringBuilder();
         for (byte i : idData) {
             sb.append(String.format(Locale.ENGLISH, "%d", i + 128));
         }
-        return Long.valueOf(sb.toString());
+        return sb.toString();
     }
 
     @Nullable
-    public static Long getTagId(Intent intent) {
+    public static String getTagId(Intent intent) {
         String action = intent.getAction();
         if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)) {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);

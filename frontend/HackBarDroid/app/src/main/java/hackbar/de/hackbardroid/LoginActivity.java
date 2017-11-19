@@ -60,6 +60,7 @@ public class LoginActivity extends Activity {
 
         // when we arrive here, delete the user (from prev login)
         userSettings.setUserId(null);
+        userSettings.setConnectedTagIdKey(null);
     }
 
     @Override
@@ -85,6 +86,7 @@ public class LoginActivity extends Activity {
 
             // navigate to main activity
             Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             return true;
         }
