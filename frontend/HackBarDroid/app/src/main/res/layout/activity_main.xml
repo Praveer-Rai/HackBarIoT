@@ -40,7 +40,8 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center"
             android:text="@string/pairInfo"
-            android:layout_margin="16dp" />
+            android:layout_margin="16dp"
+            android:alpha="0.66"/>
 
     </LinearLayout>
 
@@ -85,7 +86,7 @@
             android:layout_height="wrap_content"
             android:text="@string/number_of_drinks"
             android:gravity="center"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="32dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_alignParentStart="true"

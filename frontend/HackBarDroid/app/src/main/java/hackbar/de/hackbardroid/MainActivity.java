@@ -152,17 +152,33 @@ public class MainActivity extends AppCompatActivity {
 
     private void logout() {
         String userId = userSettings.getUserId();
-        Call<Void> logoutCall = nerdBarService.logout(userId);
-        logoutCall.enqueue(new Callback<Void>() {
+        Call<User> logoutCall = nerdBarService.logout(userId);
+        logoutCall.enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful()) {
+                    String tag = userSettings.getConnectedTagIdKey();
+
+                    if (tag != null) {
+                        int drinks = currentUserData.getDrinkCount();
+                        String msg;
+                        if (drinks >= 3) {
+                            msg = String.format(Locale.ENGLISH,
+                                    "You had %d drinks. Please consider to take a cap! Get home safe \uD83D\uDE42",
+                                    drinks);
+                        } else {
+                            msg = "Hope you enjoyed your stay! \uD83D\uDE09";
+                        }
+
+                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
+                    }
+
                     navigateToLogin();
                 }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Call<User> call, Throwable t) {
                 Toast.makeText(MainActivity.this, "Sorry, couldn't log you out!", Toast.LENGTH_SHORT)
                     .show();
             }

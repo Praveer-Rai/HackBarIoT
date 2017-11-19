@@ -21,7 +21,7 @@ public interface INerdBarService {
 
     @POST("logout")
     @FormUrlEncoded
-    Call<Void> logout(@Field("userId")  String userId);
+    Call<User> logout(@Field("userId")  String userId);
 
     @GET("getUser")
     Call<User> getUser(@Query("userId") String userId);
