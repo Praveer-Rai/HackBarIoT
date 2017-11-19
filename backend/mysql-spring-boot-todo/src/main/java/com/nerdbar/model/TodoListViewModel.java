@@ -1,4 +1,6 @@
-package com.nerdbar;
+package com.nerdbar.model;
+
+import com.nerdbar.model.TodoItem;
 
 import java.util.ArrayList;
 
