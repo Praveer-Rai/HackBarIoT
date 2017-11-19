@@ -1,4 +1,4 @@
-package com.nerdbar;
+package com.nerdbar.model;
 
 import lombok.Data;
 import lombok.ToString;
@@ -12,32 +12,20 @@ import java.time.LocalDateTime;
 @Entity
 @Data
 @ToString
-public class UserItem {
+public class DrinkItem {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
-    private String deviceId;
-
-    private String currentLEDColor;
-
-    private String userId;
+    private String drinkName;
 
     private Integer maxTemp;
 
     private Integer minTemp;
 
-    private Integer currentTemp;
+    private String imageURL;
 
-    private String currentDrink;
-
-    private Integer sipCount;
-
-    private Integer drinkDuration;
-
-    private LocalDateTime drinkStart;
-
-    private LocalDateTime drinkEnd;
+    private String price;
 
 }

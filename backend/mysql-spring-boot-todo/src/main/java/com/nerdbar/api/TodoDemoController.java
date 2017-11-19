@@ -1,5 +1,8 @@
-package com.nerdbar;
+package com.nerdbar.api;
 
+import com.nerdbar.model.TodoItem;
+import com.nerdbar.repo.TodoItemRepository;
+import com.nerdbar.model.TodoListViewModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
