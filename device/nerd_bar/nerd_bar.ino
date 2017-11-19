@@ -1,6 +1,6 @@
 
 # define DEV_ID "1052512259"//Device ID (originally ...59)
-int rgb_state=2; //2 = find_my_drink // 1= Need assistance // 0=normal temp light
+int rgb_state=0; //2 = find_my_drink // 1= Need assistance // 0=normal temp light
 
 //FREQUENCIES!!!!
 # define ACC_FREQ 1
