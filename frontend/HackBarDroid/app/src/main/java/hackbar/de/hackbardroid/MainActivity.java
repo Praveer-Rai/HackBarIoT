@@ -78,9 +78,7 @@ public class MainActivity extends AppCompatActivity {
         if (!checkLoggedIn())
             return;
 
-        if (updateViewState()) {
-            requestUserUpdate();
-        }
+        updateViewState();
 
         handleIntent(getIntent());
     }
@@ -236,6 +234,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             requestUserUpdate();
+
+            handler.postDelayed(intervalRunner, 5000);
         }
     };
 
@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
         NfcUtils.setupForegroundDispatch(this);
 
         handler = new Handler();
-        handler.postDelayed(intervalRunner, 5000);
+        handler.post(intervalRunner);
     }
 
     @Override
