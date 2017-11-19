@@ -6,7 +6,7 @@ int rgb_state=0; //2 = find_my_drink // 1= Need assistance // 0=normal temp ligh
 # define ACC_FREQ 1
 # define TEMP_FREQ 10
 # define RGB_FREQ 5
-# define API_FREQ 300
+# define API_FREQ 150
 
 #define ALARM_INT 2 //Length of the alarm mode blink intervals
 
@@ -215,7 +215,7 @@ void send_temp_api(float temp){
     
       HTTPClient http;
       http.begin("http://hackatumdemoapp.azurewebsites.net/nerdbar/temperature");
-      //http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+      http.addHeader("Content-Type", "application/x-www-form-urlencoded");
       
       String s_to_send;
       s_to_send.concat("deviceId=");
@@ -224,11 +224,12 @@ void send_temp_api(float temp){
       s_to_send.concat(String((int)(temp)));
 
       //Serial.println(s_to_send);
+
+      //Serial.println(s_to_send);
       http.POST(s_to_send);
-   
       
       String api_response=http.getString();
-      Serial.println(api_response);
+      //Serial.println(api_response);
       
       http.end();
   }
@@ -244,17 +245,19 @@ void send_sip_api(){
     
       HTTPClient http;
       http.begin("http://hackatumdemoapp.azurewebsites.net/nerdbar/incrementSipCount");
-      //http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+      http.addHeader("Content-Type", "application/x-www-form-urlencoded");
       
       String s_to_send;
       s_to_send.concat("deviceId=");
       s_to_send.concat(DEV_ID);
 
       //Serial.println(s_to_send);
+
+      //Serial.println(s_to_send);
       http.POST(s_to_send);
       
       String api_response=http.getString();
-      Serial.println(api_response);
+      //Serial.println(api_response);
 
       tot_sips-=1;
       
@@ -280,26 +283,26 @@ void get_from_api(void){
       
       //Get the response
       http.begin(url);
-      Serial.println(url);
+      //Serial.println(url);
       
       //http.addHeader("Content-Type", "application/x-www-form-urlencoded");
       int httpCode = http.GET();
       String api_response=http.getString();
 
-      Serial.println(api_response);
+      //Serial.println(api_response);
   
       int del_idx = api_response.indexOf(':');
-      int del_idx_2 = api_response.indexOf(',', del_idx + 1);
-      int del_idx_3 = api_response.indexOf(',', del_idx_2 + 1);
+      int del_idx_2 = api_response.indexOf(':', del_idx + 1);
+      int del_idx_3 = api_response.indexOf(':', del_idx_2 + 1);
       
       float min_t = api_response.substring(0, del_idx).toFloat();
       float max_t = api_response.substring(del_idx + 1, del_idx_2).toFloat();
-      int find_my_drink = api_response.substring(del_idx_2, del_idx_3).toInt();
+      int find_my_drink = api_response.substring(del_idx_2+1, del_idx_3).toInt();
       int need_assistance = api_response.substring(del_idx_3+1).toInt();
 
-      /*
-      Serial.print("Received vals: ");        
-      Serial.print(min_t);Serial.print(" :  ");    
+   
+      //Serial.print("Received vals: ");        
+      /*Serial.print(min_t);Serial.print(" :  ");    
       Serial.print(max_t);Serial.print(" :  ");  
       Serial.print(find_my_drink);Serial.print(" :  ");    
       Serial.print(need_assistance);Serial.print(" AND==  ");*/
@@ -365,7 +368,7 @@ void setup(void)
     for(uint8_t t = 4; t > 0; t--) {
         USE_SERIAL.printf("[SETUP] WAIT %d...\n", t);
         USE_SERIAL.flush();
-        //delay(1000);//10000 //TODO uncomment
+        delay(1000);//10000 //TODO uncomment
     }
     //WiFiMulti.addAP("fmi-events", "hack?-17"); //Bad wifi
       WiFiMulti.addAP("iot<1d", "tick4Loo"); //Bad wifi
@@ -443,11 +446,6 @@ if((ct%TEMP_FREQ)==0){current_temp=get_temp();}//Get temp  //Serial.print("min :
 //RGB LED COLOR
 /////////////////////////////////////////////////////////////////
 if((ct%RGB_FREQ)==0){update_led_color();
-
-Serial.print(alarm_counter);
-Serial.print("  ");
-Serial.println(alarm_toggle);
-
 
 }//Switch state? Update color?
 
