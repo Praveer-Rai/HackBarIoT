@@ -12,7 +12,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import hackbar.de.hackbardroid.model.User;
+import hackbar.de.hackbardroid.service.INerdBarService;
+import hackbar.de.hackbardroid.service.NerdBarService;
 import hackbar.de.hackbardroid.settings.UserSettings;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends Activity {
 
@@ -20,6 +26,8 @@ public class LoginActivity extends Activity {
     private VideoView backgroundVideo;
 
     private UserSettings userSettings;
+
+    INerdBarService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +57,8 @@ public class LoginActivity extends Activity {
             }
         });
 
+        service = NerdBarService.getInstance();
+
         userSettings = new UserSettings(getApplicationContext());
     }
 
@@ -72,24 +82,33 @@ public class LoginActivity extends Activity {
 
     public void loginClicked(View view) {
         String username = usernameText.getText().toString();
+        login(username);
+    }
 
-        if (!login(username)) {
+    private void login(final String username) {
+        if (!username.isEmpty()) {
+            Call<User> loginCall = service.register(username, null);
+            loginCall.enqueue(new Callback<User>() {
+                @Override
+                public void onResponse(Call<User> call, Response<User> response) {
+                    // save login data
+                    userSettings.setUserId(username);
+
+                    // navigate to main activity
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }
+
+                @Override
+                public void onFailure(Call<User> call, Throwable t) {
+                    Toast.makeText(LoginActivity.this, "Ooops! Something went wrong...", Toast.LENGTH_LONG)
+                            .show();
+                }
+            });
+        } else {
             Toast.makeText(this, "Dude! You just had one fucking job...", Toast.LENGTH_LONG)
                     .show();
         }
-    }
-
-    private boolean login(String username) {
-        if (!username.isEmpty()) {
-            // save login data
-            userSettings.setUserId(username);
-
-            // navigate to main activity
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            return true;
-        }
-        return false;
     }
 }
