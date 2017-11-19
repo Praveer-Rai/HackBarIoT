@@ -1,6 +1,7 @@
 package hackbar.de.hackbardroid;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -150,10 +151,19 @@ public class MainActivity extends AppCompatActivity {
         Integer temp = user.getCurrentTemp();
         if (drink != null && temp != null) {
             drinkTemp.setText(temp + " °C");
+
+            if (temp < user.getMinTemp() || temp > user.getMaxTemp())
+                drinkTemp.setTextColor(Color.RED);
+            else if (temp == user.getMinTemp().intValue() || temp == user.getMaxTemp().intValue())
+                drinkTemp.setTextColor(Color.YELLOW);
+            else
+                drinkTemp.setTextColor(Color.WHITE);
+
             drinkTemp.setVisibility(View.VISIBLE);
             drinkTempLabel.setVisibility(View.VISIBLE);
         } else {
             drinkTemp.setVisibility(View.GONE);
+            drinkTemp.setTextColor(Color.WHITE);
             drinkTempLabel.setVisibility(View.GONE);
         }
     }
@@ -173,31 +183,32 @@ public class MainActivity extends AppCompatActivity {
         logoutCall.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
-                if (response.isSuccessful()) {
-                    String tag = userSettings.getConnectedTagIdKey();
-
-                    if (tag != null) {
-                        int drinks = currentUserData.getDrinkCount();
-                        String msg;
-                        if (drinks >= 3) {
-                            msg = String.format(Locale.ENGLISH,
-                                    "You had %d drinks. Please consider to take a cap! Get home safe \uD83D\uDE42",
-                                    drinks);
-                        } else {
-                            msg = "Hope you enjoyed your stay! \uD83D\uDE09";
-                        }
-
-                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
-                    }
-
-                    navigateToLogin();
-                }
+                logoutInternal();
             }
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Sorry, couldn't log you out!", Toast.LENGTH_SHORT)
-                    .show();
+                logoutInternal();
+            }
+
+            private void logoutInternal() {
+                String tag = userSettings.getConnectedTagIdKey();
+
+                if (tag != null) {
+                    int drinks = currentUserData.getDrinkCount();
+                    String msg;
+                    if (drinks >= 3) {
+                        msg = String.format(Locale.ENGLISH,
+                                "You had %d drinks. Please consider to take a cap! Get home safe \uD83D\uDE42",
+                                drinks);
+                    } else {
+                        msg = "Hope you enjoyed your stay! \uD83D\uDE09";
+                    }
+
+                    Toast.makeText(MainActivity.this, msg, Toast.LENGTH_LONG).show();
+                }
+
+                navigateToLogin();
             }
         });
     }
