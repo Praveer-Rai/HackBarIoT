@@ -11,7 +11,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Locale;
 
 import hackbar.de.hackbardroid.model.User;
 import hackbar.de.hackbardroid.service.INerdBarService;
@@ -33,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton newOrderButton;
     private FloatingActionButton serviceButton;
 
+    private TextView salutationText;
+
     private ViewGroup layoutUnpaired;
     private ViewGroup layoutPaired;
 
@@ -45,12 +50,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        findGlassButton = (FloatingActionButton)findViewById(R.id.findGlassButton);
-        newOrderButton = (FloatingActionButton)findViewById(R.id.newOrderButton);
-        serviceButton = (FloatingActionButton)findViewById(R.id.serviceButton);
+        findGlassButton = (FloatingActionButton) findViewById(R.id.findGlassButton);
+        newOrderButton = (FloatingActionButton) findViewById(R.id.newOrderButton);
+        serviceButton = (FloatingActionButton) findViewById(R.id.serviceButton);
         layoutUnpaired = (ViewGroup) findViewById(R.id.layoutUnpaired);
         layoutPaired = (ViewGroup) findViewById(R.id.layoutPaired);
+        salutationText = (TextView) findViewById(R.id.salutationText);
 
+        nerdBarService = NerdBarService.getInstance();
         userSettings = new UserSettings(getApplicationContext());
 
         if (!NfcUtils.checkNfcEnabled(this)) {
@@ -61,24 +68,26 @@ public class MainActivity extends AppCompatActivity {
         if (!checkLoggedIn())
             return;
 
-        updateViewState();
-
-        nerdBarService = NerdBarService.getInstance();
+        if (updateViewState()) {
+            requestUserUpdate();
+        }
 
         handleIntent(getIntent());
     }
 
-    private void updateViewState() {
+    private boolean updateViewState() {
         if (userSettings.getConnectedTagIdKey() != null) {
             findGlassButton.setVisibility(View.VISIBLE);
             newOrderButton.setVisibility(View.VISIBLE);
             layoutUnpaired.setVisibility(View.GONE);
             layoutPaired.setVisibility(View.VISIBLE);
+            return true;
         } else {
             findGlassButton.setVisibility(View.GONE);
             newOrderButton.setVisibility(View.GONE);
             layoutUnpaired.setVisibility(View.VISIBLE);
             layoutPaired.setVisibility(View.GONE);
+            return false;
         }
     }
 
@@ -87,6 +96,22 @@ public class MainActivity extends AppCompatActivity {
 
         findGlassButton.setAlpha(user.getFindMyDrink() ? 0.66f : 1.0f);
         serviceButton.setAlpha(user.getNeedAssistance() ? 0.66f : 1.0f);
+
+        updateSalutationText(user);
+    }
+
+    private void updateSalutationText(User user) {
+        String name = user.getUserId();
+        String drink = user.getCurrentDrink();
+
+        String text;
+        if (drink == null) {
+            text = String.format(Locale.ENGLISH, "Hey %s! What about grabbing a drink?", name);
+        } else {
+            text = String.format(Locale.ENGLISH, "Hey %s, enjoy your %s!", name, drink);
+        }
+
+        salutationText.setText(text);
     }
 
     private boolean checkLoggedIn() {
@@ -130,22 +155,26 @@ public class MainActivity extends AppCompatActivity {
     private final Runnable intervalRunner = new Runnable() {
         @Override
         public void run() {
-            Call<User> findCall = nerdBarService.getUser(userSettings.getUserId());
-            findCall.enqueue(new Callback<User>() {
-                @Override
-                public void onResponse(Call<User> call, Response<User> response) {
-                    if (response.isSuccessful()) {
-                        updateUserData(response.body());
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<User> call, Throwable t) {
-                    Log.d("", t.getMessage());
-                }
-            });
+            requestUserUpdate();
         }
     };
+
+    private void requestUserUpdate() {
+        Call<User> findCall = nerdBarService.getUser(userSettings.getUserId());
+        findCall.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
+                    updateUserData(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.d("", t.getMessage());
+            }
+        });
+    }
 
     @Override
     protected void onResume() {

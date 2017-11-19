@@ -8,4 +8,6 @@
 
     <string name="order_title">Order a drink</string>
     <string name="place_order">Order!</string>
+
+    <string name="salutationMock">Hey Benny,\nenjoy your beer!</string>
 </resources>

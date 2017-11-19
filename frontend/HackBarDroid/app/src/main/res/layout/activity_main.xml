@@ -37,8 +37,20 @@
     <RelativeLayout
         android:id="@+id/layoutPaired"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
+        android:layout_height="wrap_content"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+        <TextView
+            style="@style/BigTextStyle"
+            android:id="@+id/salutationText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:text="@string/salutationMock"
+            android:layout_margin="16dp" />
     </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton

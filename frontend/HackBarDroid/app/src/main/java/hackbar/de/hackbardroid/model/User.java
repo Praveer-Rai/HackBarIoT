@@ -29,9 +29,9 @@ public class User {
 //    @Expose
 //    private Integer currentTemp;
 
-//    @SerializedName("currentDrink")
-//    @Expose
-//    private Integer currentDrink;
+    @SerializedName("currentDrink")
+    @Expose
+    private String currentDrink;
 
     @SerializedName("sipCount")
     @Expose
@@ -119,5 +119,13 @@ public class User {
 
     public void setNeedAssistance(Boolean needAssistance) {
         this.needAssistance = needAssistance;
+    }
+
+    public String getCurrentDrink() {
+        return currentDrink;
+    }
+
+    public void setCurrentDrink(String currentDrink) {
+        this.currentDrink = currentDrink;
     }
 }
