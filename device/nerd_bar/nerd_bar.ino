@@ -1,12 +1,14 @@
 
-# define DEV_ID "1052512258"//Device ID (originally ...59)
-volatile int rgb_state=0; //2 = find_my_drink // 1= Need assistance // 0=normal temp light
+# define DEV_ID "1052512259"//Device ID (originally ...59)
+int rgb_state=2; //2 = find_my_drink // 1= Need assistance // 0=normal temp light
 
 //FREQUENCIES!!!!
 # define ACC_FREQ 1
 # define TEMP_FREQ 10
 # define RGB_FREQ 5
-# define API_FREQ 248
+# define API_FREQ 300
+
+#define ALARM_INT 2 //Length of the alarm mode blink intervals
 
 //#include <math.h>
 
@@ -48,7 +50,7 @@ float az_p1=0;
 
 //Before the previous value
 
-//Smoothing factors THEIR SUM MUST BE LESS THAN 1
+//Smoothing factors MUST BE LESS THAN 1
 float s_f1=0.5;//Between 0 and 1
 
 ///////////////////////
@@ -96,59 +98,6 @@ float get_temp(void){
   sensors.requestTemperatures();  
   return sensors.getTempCByIndex(0);}
 
-void isr_routine_0(void){
-  //Serial.println("IN THE ISR");
-
-    //Serial.println("Before getting accs");
-    getAccel(); 
-    //FOR THE SERIAL PLOTTER
-    //Serial.println(phi);
-    /*Serial.print(ax);Serial.print(" ");
-    Serial.print(ay);Serial.print(" ");
-    Serial.println(az);*/
-    
-
-    if(phi<SIP_THRESHOLD){
-      sip_cycle_counter=0;
-    } else if(phi>SIP_THRESHOLD){
-        sip_cycle_counter+=1;
-        
-        if(sip_cycle_counter>=MIN_SIP_DUR){//ONE SIP!
-          //CALL PRAVEERS API FOR ADDING A SIP
-          
-          sip_cycle_counter=0;
-          tot_sips+=1;
-          
-          }
-        
-    }
-    
-  
-/*
-  switch (rgb_state) {
-  case 2:
-    // Find my drink
-    rainbow();
-    break;
-  case 1:
-    // Need assistance
-    alarm_rgb();
-    break;
-  default:
-    // Light according to temp
-    scale_temp(current_temp);
-  }*/
-
-  /*Serial.println(current_temp);
- 
-  
-  */
-
-  //timer0_write(ESP.getCycleCount() + TEMP_ISR_INT);//Prepare next ISR call
-  }
-
-/*---------------------------------------------------------------------------------------*/
-
 
 //RGB HEADER
 /*---------------------------------------------------------------------------------------*/
@@ -160,9 +109,8 @@ void isr_routine_0(void){
 int wheel_idx=0;
 int wheel_dir=1;
 int alarm_toggle=1;
+int alarm_counter=1;
 
-
-#define ALARM_INT 2
 
 #define PIN D6
 #define NUM_LEDS 1
@@ -205,18 +153,28 @@ void rainbow(void){
   strip.setPixelColor(0, Wheel((wheel_idx) & 255));
   strip.show();
 
-  wheel_idx+=wheel_dir*50;
+  wheel_idx+=wheel_dir*40;
 }
 
 void alarm_rgb(void){
-  if((alarm_toggle<ALARM_INT)&&(alarm_toggle>0)){
-      rgb_color(strip.Color(255, 0, 0)); // Red 
-   }else{
-      if(alarm_toggle==ALARM_INT){alarm_toggle=-ALARM_INT+1;}
-      rgb_color(strip.Color(0, 0, 0)); // OFF
+      
+  if(alarm_counter>ALARM_INT){//Cycle passed
+
+    if(alarm_toggle==1){
+        rgb_color(strip.Color(255, 0, 0)); // Red 
+        alarm_toggle=0;
+    }else{
+       rgb_color(strip.Color(0, 0, 0)); // OFF  
+       alarm_toggle=1;   
     }
-    alarm_toggle+=1;
-    }
+    
+    alarm_counter=-1;
+   }
+
+   alarm_counter+=1;
+
+
+}
   
 
 void scale_temp(float t){
@@ -249,10 +207,10 @@ void scale_temp(float t){
 #define USE_SERIAL Serial
 ESP8266WiFiMulti WiFiMulti;
 
-void send_to_api(float temp){
+void send_temp_api(float temp){
 
-    //millis connect timeout TODO
-     
+    rgb_color(strip.Color(0, 0, 255)); // Blue 
+
     if((WiFiMulti.run() == WL_CONNECTED)) {// Check for WiFi connection
     
       HTTPClient http;
@@ -277,10 +235,41 @@ void send_to_api(float temp){
 
 }
 
+
+void send_sip_api(){
+
+    rgb_color(strip.Color(0, 0, 255)); // Blue 
+
+    if((WiFiMulti.run() == WL_CONNECTED)) {// Check for WiFi connection
+    
+      HTTPClient http;
+      http.begin("http://hackatumdemoapp.azurewebsites.net/nerdbar/incrementSipCount");
+      //http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+      
+      String s_to_send;
+      s_to_send.concat("deviceId=");
+      s_to_send.concat(DEV_ID);
+
+      //Serial.println(s_to_send);
+      http.POST(s_to_send);
+      
+      String api_response=http.getString();
+      Serial.println(api_response);
+
+      tot_sips-=1;
+      
+      http.end();
+  }
+
+}
+
+
 void get_from_api(void){
 
     //millis connect timeout TODO
-     Serial.println("Before if statement");
+     
+    rgb_color(strip.Color(0, 0, 255)); // Blue 
+
     if((WiFiMulti.run() == WL_CONNECTED)) {// wait for WiFi connection
     
       HTTPClient http;
@@ -314,7 +303,7 @@ void get_from_api(void){
       Serial.print(max_t);Serial.print(" :  ");  
       Serial.print(find_my_drink);Serial.print(" :  ");    
       Serial.print(need_assistance);Serial.print(" AND==  ");*/
-      Serial.println((min_t==0.0)&&(max_t==0.0)&&(find_my_drink==0)&&(need_assistance==0));      
+      //Serial.println((min_t==0.0)&&(max_t==0.0)&&(find_my_drink==0)&&(need_assistance==0));      
 
       if((min_t==0.0)&&(max_t==0.0)&&(find_my_drink==0)&&(need_assistance==0)){
         //Response did not answer
@@ -435,7 +424,7 @@ Serial.println(accelgyro.testConnection() ? "MPU6050 connection successful" : "M
 void loop(void)
 { 
 
-   for (int ct=0; ct <= 1000000; ct++){
+   for (int ct=1; ct <= 1000000; ct++){
 
 //ACCELERATION
 /////////////////////////////////////////////////////////////////
@@ -447,49 +436,35 @@ void loop(void)
   
 //TEMPERATURE
 /////////////////////////////////////////////////////////////////
-if((ct%TEMP_FREQ)==0){current_temp=get_temp();
-
-/*Serial.print("min : "); Serial.print(min_temp);
-Serial.print(" max : "); Serial.print(max_temp);
-Serial.print(" curr : "); Serial.println(current_temp);*/
-
-}//Get temp
+if((ct%TEMP_FREQ)==0){current_temp=get_temp();}//Get temp  //Serial.print("min : "); Serial.print(min_temp);
+//Serial.print(" max : "); Serial.print(max_temp);
+//Serial.print(" curr : "); Serial.println(current_temp);*/
 
 //RGB LED COLOR
 /////////////////////////////////////////////////////////////////
-if((ct%RGB_FREQ)==0){update_led_color();}//Switch state? Update color?
+if((ct%RGB_FREQ)==0){update_led_color();
+
+Serial.print(alarm_counter);
+Serial.print("  ");
+Serial.println(alarm_toggle);
+
+
+}//Switch state? Update color?
 
 
 //SEND INFO
 /////////////////////////////////////////////////////////////////
-if((ct%API_FREQ)==0){
-  //SEND
-  Serial.print("SENDING info through REST API");
-  delay(2000);
-  Serial.println("  Done!");
-  }
+if((ct%API_FREQ)==0){send_temp_api(current_temp); }
 
   
 //RECEIVE INFO
 /////////////////////////////////////////////////////////////////
-if(((ct+API_FREQ/2)%API_FREQ)==0){
-  //RECEIVE
-  Serial.print("RECEIVEING info through REST API");
-  delay(2000);
-  Serial.println("  Done!");
-  }
+if(((ct+API_FREQ/2)%API_FREQ)==0){get_from_api();}
  
    }
-
-  //Communicate to server
-  //noInterrupts();
-  //send_to_api(current_temp);
-  //get_from_api();
-  //interrupts();
-  //delay(2000);
  
 
-  }
+}
 
 
 
@@ -509,7 +484,7 @@ void update_acc(void){
   
   if(sip_cycle_counter>=MIN_SIP_DUR){//ONE SIP!
       //CALL PRAVEERS API FOR ADDING A SIP
-      
+      send_sip_api();
       sip_cycle_counter=0;
       tot_sips+=1;         
   }
@@ -539,31 +514,10 @@ void update_led_color(void){
 
 
 
-
 // ACCEL FUNCTIONS
 void getGyro(void)
 {
 accelgyro.getRotation(&gx, &gy, &gz);
-/*
-//FOR THE SERIAL PLOTTER
-Serial.print(gx);
-Serial.print(" ");
-Serial.print(gy);
-Serial.print(" ");
-Serial.println(gz);
-*/
-
-
-/*
-//TEXT FORMAT
-Serial.print("gx: ");
-Serial.print(gx);
-Serial.print(" gy:");
-Serial.print(gy);
-Serial.print(" gz:");
-Serial.print(gz);
-*/
-
 /*
  * BEFORE
 Serial.print("gx:");
@@ -598,33 +552,12 @@ if(atot<10000){atot=10000;}
 
 phi=90*(1+ay/atot);
 
-//if(phi>180){phi=phi;}
-
-//FOR THE SERIAL PLOTTER
-//Serial.println(phi);
-
-//Update oldest value
-/*
-ax_p2=ax_p1;
-ay_p2=ay_p1;
-az_p2=az_p1;*/
-
+//Update oldest values
 //Update previous value
 ax_p1=ax;
 ay_p1=ay;
 az_p1=az; 
 
-/*
-ax = ax*(1-s_f1-s_f2)+ax_p1*s_f1+ax_p1*s_f2;
-ay = ay*(1-s_f1-s_f2)+ay_p1*s_f1+ay_p1*s_f2;
-az = az*(1-s_f1-s_f2)+az_p1*s_f1+az_p1*s_f2;
-*/
 
-/*//FOR THE SERIAL PLOTTER
-Serial.print(ay);
-Serial.print(" ");
-Serial.print(sqrt(pow(ax,2)+pow(az,2)));
-Serial.print(" ");
-Serial.println(sqrt(pow(ax,2)+pow(ay,2)+pow(az,2)));*/
 }
 
