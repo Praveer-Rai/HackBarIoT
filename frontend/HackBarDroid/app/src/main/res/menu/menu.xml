@@ -6,4 +6,8 @@
         android:icon="@drawable/ic_exit_to_app_white_24dp"
         android:title="@string/logout"
         app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/action_reset_sip_counter"
+        android:title="@string/reset_sip_counter"
+        app:showAsAction="never"/>
 </menu>

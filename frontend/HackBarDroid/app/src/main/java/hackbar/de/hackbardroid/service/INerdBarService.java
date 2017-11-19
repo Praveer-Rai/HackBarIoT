@@ -37,4 +37,8 @@ public interface INerdBarService {
     @POST("needAssistance")
     @FormUrlEncoded
     Call<User> needAssistance(@Field("userId") String userId);
+
+    @POST("resetSipCount")
+    @FormUrlEncoded
+    Call<User> resetSipCount(@Field("userId")  String userId);
 }

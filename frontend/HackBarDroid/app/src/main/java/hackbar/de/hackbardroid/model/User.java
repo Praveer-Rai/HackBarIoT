@@ -37,6 +37,10 @@ public class User {
     @Expose
     private Integer sipCount;
 
+    @SerializedName("drinkCount")
+    @Expose
+    private Integer drinkCount;
+
 //    @SerializedName("drinkDuration")
 //    @Expose
 //    private Integer drinkDuration;
@@ -103,6 +107,14 @@ public class User {
 
     public void setSipCount(Integer sipCount) {
         this.sipCount = sipCount;
+    }
+
+    public Integer getDrinkCount() {
+        return drinkCount;
+    }
+
+    public void setDrinkCount(Integer drinkCount) {
+        this.drinkCount = drinkCount;
     }
 
     public Boolean getFindMyDrink() {

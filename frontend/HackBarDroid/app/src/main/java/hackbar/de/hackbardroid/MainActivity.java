@@ -37,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton serviceButton;
 
     private TextView salutationText;
+    private TextView userHintText;
+    private TextView numberOfSips;
+    private TextView numberOfDrinks;
 
     private ViewGroup layoutUnpaired;
     private ViewGroup layoutPaired;
@@ -56,6 +59,9 @@ public class MainActivity extends AppCompatActivity {
         layoutUnpaired = (ViewGroup) findViewById(R.id.layoutUnpaired);
         layoutPaired = (ViewGroup) findViewById(R.id.layoutPaired);
         salutationText = (TextView) findViewById(R.id.salutationText);
+        userHintText = (TextView) findViewById(R.id.userHintText);
+        numberOfDrinks = (TextView) findViewById(R.id.numberOfDrinks);
+        numberOfSips = (TextView) findViewById(R.id.numberOfSips);
 
         nerdBarService = NerdBarService.getInstance();
         userSettings = new UserSettings(getApplicationContext());
@@ -98,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
         serviceButton.setAlpha(user.getNeedAssistance() ? 0.66f : 1.0f);
 
         updateSalutationText(user);
+        updateUserHintText(user);
+        updateCounters(user);
     }
 
     private void updateSalutationText(User user) {
@@ -106,12 +114,31 @@ public class MainActivity extends AppCompatActivity {
 
         String text;
         if (drink == null) {
-            text = String.format(Locale.ENGLISH, "Hey %s! What about grabbing a drink?", name);
+            text = String.format(Locale.ENGLISH, "Hey %s!", name);
         } else {
-            text = String.format(Locale.ENGLISH, "Hey %s, enjoy your %s!", name, drink);
+            text = String.format(Locale.ENGLISH, "Hey %s,\nenjoy your %s!", name, drink);
         }
 
         salutationText.setText(text);
+    }
+
+    private void updateUserHintText(User user) {
+        String drink = user.getCurrentDrink();
+
+        if (drink != null) {
+            String text = String.format(Locale.ENGLISH,
+                    "The perfect temperature of your drink\nis between %d to %d °C.",
+                    user.getMinTemp(),
+                    user.getMaxTemp());
+            userHintText.setText(text);
+        } else {
+            userHintText.setText("How about grabbing a drink?");
+        }
+    }
+
+    private void updateCounters(User user) {
+        numberOfSips.setText(user.getSipCount().toString());
+        numberOfDrinks.setText(user.getDrinkCount().toString());
     }
 
     private boolean checkLoggedIn() {
@@ -138,6 +165,24 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(Call<Void> call, Throwable t) {
                 Toast.makeText(MainActivity.this, "Sorry, couldn't log you out!", Toast.LENGTH_SHORT)
                     .show();
+            }
+        });
+    }
+
+    private void resetSipCounter(String userId) {
+        Call<User> logoutCall = nerdBarService.resetSipCount(userId);
+        logoutCall.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful()) {
+                    updateUserData(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Sorry, couldn't do that!", Toast.LENGTH_SHORT)
+                        .show();
             }
         });
     }
@@ -239,6 +284,9 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_logout:
                 logout();
+                return true;
+            case R.id.action_reset_sip_counter:
+                resetSipCounter(userSettings.getUserId());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
