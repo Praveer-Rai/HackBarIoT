@@ -68,14 +68,17 @@ public class NerdBarController {
     @PostMapping("/register")
     public ResponseEntity register(
             @RequestParam("userId") final String userId,
-            @RequestParam("deviceId") String deviceId
+            @RequestParam(value="deviceId", required=false) String deviceId
     ) {
         UserItem user = userItemRepository.findByUserId(userId);
-//        UserItem oldUser = userItemRepository.findByDeviceId(deviceId);
-//        if(oldUser != null) {
-//            oldUser.setDeviceId(null);
-//            userItemRepository.save(oldUser);
-//        }
+
+        if(deviceId!=null && !deviceId.isEmpty()) {
+            UserItem oldUser = userItemRepository.findByDeviceId(deviceId);
+            if(oldUser != null) {
+                oldUser.setDeviceId(null);
+                userItemRepository.save(oldUser);
+            }
+        }
 
         if(user != null){
             user.setDeviceId(deviceId);
@@ -101,7 +104,7 @@ public class NerdBarController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity register(
+    public ResponseEntity logout(
             @RequestParam("userId") final String userId
     ) {
         UserItem user = userItemRepository.findByUserId(userId);
